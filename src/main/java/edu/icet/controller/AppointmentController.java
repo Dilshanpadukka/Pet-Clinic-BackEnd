@@ -32,7 +32,6 @@ public class AppointmentController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }
-
     }
     @PutMapping("/update-appointment")
     public ResponseEntity<String> updateAppointment(@Valid @RequestBody Appointment appointment) {

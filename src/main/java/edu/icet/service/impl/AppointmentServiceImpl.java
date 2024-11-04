@@ -4,6 +4,7 @@ import edu.icet.dto.Appointment;
 import edu.icet.entity.AppointmentEntity;
 import edu.icet.repository.AppointmentRepository;
 import edu.icet.service.AppointmentService;
+import edu.icet.service.EmailService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final ModelMapper modelMapper;
+    private final EmailService emailService;
 
     @Getter
     public static class AppointmentUpdateException extends RuntimeException {
@@ -41,13 +43,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<AppointmentEntity> appointmentsByTimeAndDate = appointmentRepository.findAppointmentsByTimeAndDate(appointment.getTime(),appointment.getDate());
         Long appointmentsCount=appointmentRepository.countAppointmentsInTimeFrame(localDate,startTime,endTime);
         if (!appointmentsByTimeAndDate.isEmpty()){
+            emailService.sendBookingUnSuccessEmail(appointment.getEmail(),appointment.getOwnerName());
             throw new AppointmentUpdateException("Time is Already Booked", "TIMESLOT_OCCUPIED");
-
         }else if(appointmentsCount>=10){
+            emailService.sendBookingUnSuccessEmail(appointment.getEmail(),appointment.getOwnerName());
             throw new AppointmentUpdateException("Maximum appointments limit reached for this time frame", "MAX_LIMIT_REACHED");
         } else {
             appointmentRepository.save(appointmentEntity);
-
+            //emailService.sendBookingSuccessEmail("udayankadilshan23@gmail.com","Udayanka");
+            emailService.sendBookingSuccessEmail(appointment.getEmail(),appointment.getOwnerName());
         }
     }
 
@@ -67,6 +71,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         AppointmentEntity appointmentEntity = new ModelMapper().map(appointment, AppointmentEntity.class);
         appointmentRepository.save(appointmentEntity);
+        emailService.sendBookingSuccessEmail(appointment.getEmail(),appointment.getOwnerName());
     }
 
     @Override
