@@ -19,6 +19,8 @@ public class Appointment {
     private LocalTime time;
     private String categoryId;
     private String petId;
+    private String petName;
+    private String petType;
     private String ownerName;
     private String phoneNumber;
     private String email;
