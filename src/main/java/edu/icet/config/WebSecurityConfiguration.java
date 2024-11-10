@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,13 +28,14 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class WebSecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
+    private final UserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception{
         http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request->
                         request.requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/api/doctor/**").hasAnyAuthority(UserRole.DOCTOR.name())
-                                .requestMatchers("/api/petowner/**").hasAnyAuthority(UserRole.PETOWNER.name())
+//                                .requestMatchers("/api/admin/**").hasRole(UserRole.DOCTOR.name())
+//                                .requestMatchers("/api/user/**").hasRole(UserRole.PETOWNER.name())
                                 .anyRequest().authenticated()).sessionManagement(manager ->
                         manager.sessionCreationPolicy(STATELESS)).
                 authenticationProvider(authenticationProvider()).
@@ -48,7 +50,7 @@ public class WebSecurityConfiguration {
     @Bean
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider authProvider =new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService.userDetailsService());
+        authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

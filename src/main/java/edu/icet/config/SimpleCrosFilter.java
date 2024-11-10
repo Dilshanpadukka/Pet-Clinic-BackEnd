@@ -29,8 +29,6 @@ public class SimpleCrosFilter implements Filter {
         }else {
             chain.doFilter(req,res);
         }
-
-
     }
 
     @Override
