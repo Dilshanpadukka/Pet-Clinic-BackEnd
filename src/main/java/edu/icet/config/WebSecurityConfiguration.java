@@ -29,17 +29,20 @@ public class WebSecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
     private final UserDetailsService userDetailsService;
+    private final CorsConfig corsConfig;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception{
         http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request->
                         request.requestMatchers("/api/auth/**").permitAll()
+                        //.requestMatchers("/api/report/**").permitAll()
 //                                .requestMatchers("/api/admin/**").hasRole(UserRole.DOCTOR.name())
 //                                .requestMatchers("/api/user/**").hasRole(UserRole.PETOWNER.name())
                                 .anyRequest().authenticated()).sessionManagement(manager ->
                         manager.sessionCreationPolicy(STATELESS)).
                 authenticationProvider(authenticationProvider()).
-                addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilter(corsConfig.corsFilter());
         return http.build();
 
     }

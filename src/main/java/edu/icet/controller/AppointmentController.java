@@ -18,59 +18,120 @@ import java.util.Map;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/appointment")
+@RequestMapping("/api/appointment")
 @RequiredArgsConstructor
 @Slf4j
 public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @PostMapping("/add-appointment")
-    public ResponseEntity<String> addAppointment(@Valid @RequestBody Appointment appointment) {
+    public ResponseEntity<Map<String, String>> addAppointment(@Valid @RequestBody Appointment appointment) {
+        log.info("Received request to add appointment: {}", appointment);
         try {
             appointmentService.addAppointment(appointment);
-            return ResponseEntity.ok("Appointment added successfully");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Appointment added successfully");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            log.error("Error adding appointment: ", e);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
     @PutMapping("/update-appointment")
-    public ResponseEntity<String> updateAppointment(@Valid @RequestBody Appointment appointment) {
+    public ResponseEntity<Map<String, String>> updateAppointment(@Valid @RequestBody Appointment appointment) {
+        log.info("Received request to update appointment: {}", appointment);
         try {
             appointmentService.updateAppointment(appointment);
-            return ResponseEntity.ok("Appointment updated successfully");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Appointment updated successfully");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            log.error("Error updating appointment: ", e);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
-
     }
 
     @GetMapping("/get-appointment-by-Id/{appointmentId}")
-    public List<AppointmentEntity> getAppointmentById(@PathVariable Integer appointmentId) {
-        return appointmentService.findAppointmentsByAppointmentId(appointmentId);
+    public ResponseEntity<?> getAppointmentById(@PathVariable Integer appointmentId) {
+        log.info("Received request to get appointment by ID: {}", appointmentId);
+        try {
+            List<AppointmentEntity> appointments = appointmentService.findAppointmentsByAppointmentId(appointmentId);
+            if (appointments.isEmpty()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "No appointments found with ID: " + appointmentId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            return ResponseEntity.ok(appointments);
+        } catch (Exception e) {
+            log.error("Error retrieving appointment: ", e);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
-    @DeleteMapping("/delete-appointment-by-Id/{appointmentId}")
-    public ResponseEntity<String> deleteAppointmentById(@PathVariable Integer appointmentId) {
+    @DeleteMapping("/delete-appointment-by-id/{appointmentId}")
+    public ResponseEntity<Map<String, String>> deleteAppointmentById(@PathVariable Integer appointmentId) {
+        log.info("Received request to delete appointment with ID: {}", appointmentId);
         try {
             appointmentService.removeAppointment(appointmentId);
-            return ResponseEntity.ok("Appointment deleted successfully");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Appointment deleted successfully");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            log.error("Error deleting appointment: ", e);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
     @GetMapping("/get-all-appointments")
-    public List<Appointment> getAllAppointment() {
-        return appointmentService.getAppointment();
+    public ResponseEntity<?> getAllAppointment() {
+        log.info("Received request to get all appointments");
+        try {
+            List<Appointment> appointments = appointmentService.getAppointment();
+            if (appointments.isEmpty()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "No appointments found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            return ResponseEntity.ok(appointments);
+        } catch (Exception e) {
+            log.error("Error retrieving appointments: ", e);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
+
     @GetMapping("/get-appointments-by-petId/{petId}")
-    public List<AppointmentEntity> getAppointmentByPetId(@PathVariable String petId) {
-        return appointmentService.findAppointmentsByPetId(petId);
+    public ResponseEntity<?> getAppointmentByPetId(@PathVariable String petId) {
+        log.info("Received request to get appointments for pet ID: {}", petId);
+        try {
+            List<AppointmentEntity> appointments = appointmentService.findAppointmentsByPetId(petId);
+            if (appointments.isEmpty()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "No appointments found for pet ID: " + petId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            return ResponseEntity.ok(appointments);
+        } catch (Exception e) {
+            log.error("Error retrieving appointments: ", e);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_GATEWAY)
-    public Map<String,String> handleAppointmentUpdateException(MethodArgumentNotValidException ex) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
@@ -80,5 +141,4 @@ public class AppointmentController {
         log.error("Validation error: {}", errors);
         return errors;
     }
-
 }

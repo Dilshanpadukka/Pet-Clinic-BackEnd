@@ -21,5 +21,8 @@ public class PetEntity {
     private String gender;
     private String remarks;
     private String petType;
-    private String ownerId;
+    private String ownerName;
+    private String ownerPhoneNumber;
+    private String ownerEmail;
+    private String ownerAddress;
 }

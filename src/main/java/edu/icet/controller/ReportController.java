@@ -29,7 +29,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/report")
+@RequestMapping("/api/report")
 public class ReportController {
 
     @Autowired

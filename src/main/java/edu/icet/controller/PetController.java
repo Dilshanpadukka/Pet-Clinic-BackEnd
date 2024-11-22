@@ -17,56 +17,64 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/pet")
+@RequestMapping("/api/pet")
 @RequiredArgsConstructor
 @Slf4j
 public class PetController {
     final PetService petService;
 
     @PostMapping("/add-pet")
-    public ResponseEntity<String> addPet(@Valid @RequestBody Pet pet) {
+    public ResponseEntity<Map<String, String>> addPet(@Valid @RequestBody Pet pet) {
         log.info("Received request to add Pet: {}", pet);
         petService.addPet(pet);
-        return ResponseEntity.ok("Pet added successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Pet added successfully");
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/pet-get-all")
-    public List<Pet> getPets() {
+    public ResponseEntity<List<Pet>> getPets() {
         log.info("Received request to retrieve all pets");
-        return petService.getAll();
+        return ResponseEntity.ok(petService.getAll());
     }
 
     @GetMapping("/pet-search-by-id/{id}")
-    public Pet searchPetsById(@Valid @PathVariable Integer id) {
+    public ResponseEntity<Pet> searchPetsById(@Valid @PathVariable Integer id) {
         log.info("Searching for Pet by ID: {}", id);
-        return petService.SearchPetById(id);
+        return ResponseEntity.ok(petService.SearchPetById(id));
     }
 
     @GetMapping("/pet-search-by-name/{name}")
-    public List<Pet> searchPetsByName(@Valid @PathVariable String name) {
+    public ResponseEntity<List<Pet>> searchPetsByName(@Valid @PathVariable String name) {
         log.info("Searching for Pets by Name: {}", name);
-        return petService.searchByName(name);
+        return ResponseEntity.ok(petService.searchByName(name));
     }
 
     @PutMapping("/pet-update-by-id")
-    public ResponseEntity<String> updatePet(@Valid @RequestBody Pet pet) {
+    public ResponseEntity<Map<String, String>> updatePet(@Valid @RequestBody Pet pet) {
         log.info("Received request to update Pet: {}", pet);
         petService.updatePetById(pet);
-        return ResponseEntity.ok("Pet updated successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Pet updated successfully");
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/pet-delete-by-id/{id}")
-    public ResponseEntity<String> deletePet(@Valid @PathVariable Integer id) {
+    public ResponseEntity<Map<String, String>> deletePet(@Valid @PathVariable Integer id) {
         log.info("Received request to delete Pet with ID: {}", id);
         petService.deletePetById(id);
-        return ResponseEntity.ok("Pet deleted successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Pet deleted successfully");
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/pet-delete-all")
-    public ResponseEntity<String> deleteAllPets() {
+    public ResponseEntity<Map<String, String>> deleteAllPets() {
         log.info("Received request to delete all Pets");
         petService.deleteAll();
-        return ResponseEntity.ok("All Pets deleted successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "All Pets deleted successfully");
+        return ResponseEntity.ok(response);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -81,5 +89,4 @@ public class PetController {
         log.error("Validation error: {}", errors);
         return errors;
     }
-
 }

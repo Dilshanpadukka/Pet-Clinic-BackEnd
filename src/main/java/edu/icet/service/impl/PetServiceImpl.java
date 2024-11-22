@@ -34,7 +34,12 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public List<Pet> searchByName(String name) {
-        return null;
+        List<Pet> petList = new ArrayList<>();
+        petRepository.findByPetName(name).forEach(petEntity -> {
+            petList.add(mapper.map(petEntity, Pet.class));
+        });
+        System.out.println(petList);
+        return petList;
     }
 
     @Override

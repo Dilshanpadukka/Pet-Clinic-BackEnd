@@ -35,7 +35,19 @@ public class Pet {
     @Size(min = 3, max = 30, message = "Pet type must be between 3 and 30 characters")
     private String petType;
 
-    @NotBlank(message = "Owner ID is required")
-    @Pattern(regexp = "^(?:\\d{9}[vVxX]|\\d{12})$", message = "Invalid Owner NIC format")
-    private String ownerId;
+    @NotBlank(message = "Owner name is required")
+    @Size(min = 3, max = 30, message = "Owner name must be between 3 and 30 characters")
+    private String ownerName;
+
+    @NotBlank(message = "Owner phone number is required")
+    @Size(min = 10, message = "Owner phone number must be at least 10 characters long")
+    private String ownerPhoneNumber;
+
+    @NotBlank(message = "Owner email is required")
+    @Email(message = "Invalid email format")
+    private String ownerEmail;
+
+    @NotBlank(message = "Owner address is required")
+    @Size(min = 5, message = "Owner address must be at least 5 characters long")
+    private String ownerAddress;
 }
